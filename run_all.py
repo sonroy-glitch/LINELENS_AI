@@ -4,7 +4,7 @@
 # also triggers LEDs and saves video clips on events!
 # press q to quit, it generates a shift report at the end
 
-import cv2, numpy as np, math, time, json, os, threading
+import cv2, numpy as np, math, time, json, os, threading, subprocess, sys
 import mediapipe as mp
 from collections import deque
 from ultralytics import YOLO
@@ -22,7 +22,7 @@ face_det = mp_face.FaceDetection(min_detection_confidence=0.4)
 
 # load the yolo model for multi-person detection
 model = YOLO("yolov8n-pose.pt")
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture('./test_videos/worker-zone-detection.mp4')
 fps_cap = cap.get(cv2.CAP_PROP_FPS) or 15.0
 w_cap = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 640
 h_cap = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 480
@@ -129,11 +129,11 @@ print("=================================\n")
 
 fps_timer = time.time()
 fps = 0
-
 while True:
     ok, frame = cap.read()
     if not ok: break
     h, w = frame.shape[:2]
+    frame = cv2.resize(frame, (640, 480))
     ts = time.time()
 
     # keep frame for clip saving
@@ -460,4 +460,11 @@ cv2.imwrite("data/spaghetti_diagram.png", layout)
 print("Saved spaghetti diagram to data/spaghetti_diagram.png")
 
 print("\nSaved all data to data/ folder!")
-print("Now run: python analytics/shift_report.py to see your report.")
+
+# auto-run the shift report
+print("\nAuto-generating shift report (calling Groq for fixes)...")
+_report_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "analytics", "shift_report.py")
+_result = subprocess.run([sys.executable, _report_script], capture_output=True, text=True)
+if _result.stdout: print(_result.stdout)
+if _result.returncode != 0:
+    print("[shift_report error]:", _result.stderr[:500])
