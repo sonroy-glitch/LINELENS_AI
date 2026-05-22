@@ -9,7 +9,7 @@ from datetime import datetime
 from groq import Groq
 
 # ── Groq LLM config ──────────────────────────────────────────────────────────
-GROQ_API_KEY = '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'
+GROQ_API_KEY = ''
 
 client=Groq(api_key=GROQ_API_KEY)
 def get_fixes_from_groq(stats: dict) -> list:

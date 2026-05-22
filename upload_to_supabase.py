@@ -13,7 +13,7 @@ def get_fixes_from_groq(stats: dict) -> list:
         print("Warning: groq package not installed. Skipping LLM fixes.")
         return []
         
-    GROQ_API_KEY = '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'
+    GROQ_API_KEY = ''
     if not GROQ_API_KEY: return []
     
     try:
